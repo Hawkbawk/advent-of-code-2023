@@ -1,6 +1,4 @@
-use std::fs::{self, File};
-
-use regex::Regex;
+use std::fs::{self};
 
 fn main() {
     println!("The answer for the first half follows:");
@@ -8,16 +6,11 @@ fn main() {
 }
 
 fn part_one() {
-    let mut result: Vec<u32> = vec![];
-
     let result = fs::read_to_string("puzzle.txt")
         .unwrap()
         .lines()
+        .filter(|line| !line.trim().is_empty())
         .fold(0 as u32, |acc, line| {
-            if line.trim().is_empty() {
-                return acc;
-            }
-
             let digits = line
                 .chars()
                 .filter(|c| c.is_digit(10))
