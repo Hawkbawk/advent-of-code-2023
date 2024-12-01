@@ -1,63 +1,66 @@
 use std::fs::{self};
 
-use regex::Regex;
+use regex::{Captures, Regex};
 
 fn main() {
-    println!("The answer for the first half follows:");
-    part_one();
-    println!("The answer for the second half follows:");
-    part_two();
+    env_logger::init();
+
+    let input = &fs::read_to_string("puzzle.txt").expect("Error reading file");
+    let first = part_one(input);
+    println!("First half: {first}");
+    let second = part_two(input);
+    println!("Second half: {second}")
 }
 
-fn part_one() {
-    let result = fs::read_to_string("puzzle.txt")
-        .unwrap()
+fn part_one(input: &String) -> u32 {
+    input
         .lines()
         .filter(|line| !line.trim().is_empty())
-        .fold(0 as u32, |acc, line| {
+        .fold(0, |acc, line| {
             let digits = line
                 .chars()
                 .filter(|c| c.is_digit(10))
-                .collect::<Vec<char>>();
+                .map(|c| c.to_digit(10).unwrap())
+                .collect::<Vec<u32>>();
 
-            acc + digits.first().unwrap().to_digit(10).unwrap() * 10
-                + digits.last().unwrap().to_digit(10).unwrap()
-        });
+            log::debug!(
+                "first: {}, second: {}",
+                digits.first().unwrap(),
+                digits.last().unwrap()
+            );
 
-    println!("The sum is: {result}");
-}
-
-fn part_two() {
-    let pattern = Regex::new("one|two|three|four|five|six|seven|eight|nine|\\d").unwrap();
-    let result = fs::read_to_string("puzzle.txt")
-        .unwrap()
-        .lines()
-        .filter_map(|line| {
-            if line.trim().is_empty() {
-                return None;
-            }
-
-            Some(
-                pattern
-                    .find_iter(line)
-                    .map(|m| match m.as_str() {
-                        "one" => 1,
-                        "two" => 2,
-                        "three" => 3,
-                        "four" => 4,
-                        "five" => 5,
-                        "six" => 6,
-                        "seven" => 7,
-                        "eight" => 8,
-                        "nine" => 9,
-                        _ => m.as_str().parse().unwrap(),
-                    })
-                    .collect::<Vec<i32>>(),
-            )
-        })
-        .fold(0, |acc, digits| {
             acc + digits.first().unwrap() * 10 + digits.last().unwrap()
-        });
-
-    println!("The result after considering spelled out digits is: {result}");
+        })
 }
+
+fn part_two(input: &String) -> u32 {
+    let pattern = Regex::new("(one|two|three|four|five|six|seven|eight|nine|\\d)").unwrap();
+
+    let parsed = pattern.replace_all(input, |result: &Captures| match &result[0] {
+        "one" => "1".to_string(),
+        "two" => "2".to_string(),
+        "three" => "3".to_string(),
+        "four" => "4".to_string(),
+        "five" => "5".to_string(),
+        "six" => "6".to_string(),
+        "seven" => "7".to_string(),
+        "eight" => "8".to_string(),
+        "nine" => "9".to_string(),
+        _ => result[0].to_string(),
+    });
+
+    log::debug!("{}", parsed);
+    log::debug!(
+        "{}",
+        parsed
+            .lines()
+            .map(|line| { line.chars().filter(|c| c.is_digit(10)).collect::<String>() })
+            .collect::<Vec<String>>()
+            .join("\n")
+    );
+
+    part_one(&parsed.to_string())
+}
+
+#[cfg(test)]
+mod test;
