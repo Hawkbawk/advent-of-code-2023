@@ -34,9 +34,9 @@ fn part_one(input: &String) -> u32 {
 }
 
 fn part_two(input: &String) -> u32 {
-    let pattern = Regex::new("(one|two|three|four|five|six|seven|eight|nine|\\d)").unwrap();
+    let pattern = Regex::new("(one|two|three|four|five|six|seven|eight|nine)").unwrap();
 
-    let parsed = pattern.replace_all(input, |result: &Captures| match &result[0] {
+    let parsed = pattern.replace_all(input, |result: &Captures| match &result[1] {
         "one" => "1".to_string(),
         "two" => "2".to_string(),
         "three" => "3".to_string(),
@@ -46,7 +46,7 @@ fn part_two(input: &String) -> u32 {
         "seven" => "7".to_string(),
         "eight" => "8".to_string(),
         "nine" => "9".to_string(),
-        _ => result[0].to_string(),
+        _ => unreachable!(),
     });
 
     log::debug!("{}", parsed);
